@@ -36,10 +36,11 @@ class Dog
   end
 
   def self.find_or_create_by(attributes)
-    !!find(attributes) ? find(attributes) : self.create(attributes)
+    !!find(attributes) ? find(attributes) : create(attributes)
   end
 
   def self.new_from_db(row)
+    return nil if row.empty?
     Dog.new(id: row[0], name: row[1], breed: row[2])
   end
 
@@ -50,8 +51,7 @@ class Dog
 
   def self.find(attributes)
     sql = "SELECT * FROM dogs WHERE name=? AND breed=?"
-    row = DB[:conn].execute(sql, attributes[:name], attributes[:breed]).flatten
-    row.empty? ? nil : new_from_db(row)
+    new_from_db(DB[:conn].execute(sql, attributes[:name], attributes[:breed]).flatten)
   end
 
   def persisted?
@@ -60,14 +60,14 @@ class Dog
 
   def insert
     sql = "INSERT INTO dogs (name, breed) VALUES (?, ?)"
-    DB[:conn].execute(sql, self.name, self.breed)
-    self.id = DB[:conn].execute("SELECT last_insert_rowid() FROM dogs")[0][0]
+    DB[:conn].execute(sql, name, breed)
+    @id = DB[:conn].execute("SELECT last_insert_rowid() FROM dogs")[0][0]
     self
   end
 
   def update
     sql = "UPDATE dogs SET name=?, breed=? WHERE id=?"
-    DB[:conn].execute(sql, self.name, self.breed, self.id)
+    DB[:conn].execute(sql, name, breed, id)
     self
   end
 end
