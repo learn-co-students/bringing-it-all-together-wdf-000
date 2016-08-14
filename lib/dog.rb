@@ -1,6 +1,13 @@
 class Dog
   attr_accessor :id, :name, :breed
 
+  # def initialize(id: nil, name:, breed:)
+  #   # binding.pry
+  #   @id = id
+  #   @name = name
+  #   @breed = breed
+  # end
+
   def initialize(param)
     param.each do |key, value|
       self.send(("#{key}="), value)
